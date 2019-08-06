@@ -15,6 +15,6 @@ fi
 $DEP ensure $UPDATE
 export ver="0.1.0"
 export version="v${ver}-$(date "+%Y%m%d")"
-env GOOS=linux GOARCH=amd64 go build -ldflags "-X main.version=$version" -o mongo-atlas-linux-x64 atlas.go
+# env GOOS=linux GOARCH=amd64 go build -ldflags "-X main.version=$version" -o mongo-atlas-linux-x64 atlas.go
 env GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.version=$version" -o mongo-atlas atlas.go
 

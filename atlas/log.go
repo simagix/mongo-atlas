@@ -10,6 +10,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/simagix/gox"
 )
 
 // Log stores Atlas logs API info
@@ -53,14 +55,19 @@ func (atl *Log) Download() ([]string, error) {
 	var err error
 	var filenames []string
 	var api *API
+	var doc map[string]interface{}
 
 	api = NewKey(atl.apiKey.publicKey, atl.apiKey.privateKey)
-	var processes []interface{}
-	if processes, err = api.getProcesses(atl.groupID); err != nil {
+	if doc, err = api.GetProcesses(atl.groupID); err != nil {
 		return filenames, err
 	}
-	fmt.Println("download files from", atl.startTime.Format("2006.01.02 15:04:05"), "to", atl.endTime.Format("2006.01.02 15:04:05"))
-	for _, process := range processes {
+	_, ok := doc["results"]
+	if !ok {
+		return filenames, errors.New(gox.Stringify(doc))
+	}
+	processes := doc["results"]
+	log.Println("download files from", atl.startTime.Format("2006.01.02 15:04:05"), "to", atl.endTime.Format("2006.01.02 15:04:05"))
+	for _, process := range processes.([]interface{}) {
 		maps := process.(map[string]interface{})
 		if strings.Index(strings.ToLower(maps["hostname"].(string)), strings.ToLower(atl.clusterName+"-")) == 0 &&
 			strings.Index(maps["typeName"].(string), "REPLICA_") == 0 {
@@ -69,18 +76,22 @@ func (atl *Log) Download() ([]string, error) {
 			uri := BaseURL + "/groups/" + atl.groupID + "/clusters/" + hostname + "/logs/mongodb.gz"
 			uri += "?startDate=" + fmt.Sprintf("%v", atl.startTime.Unix()) + "&endDate=" + fmt.Sprintf("%v", atl.endTime.Unix())
 			if atl.verbose {
-				fmt.Println("download from", uri)
+				log.Println("download from", uri)
 			}
 			var b []byte
 			if b, err = api.GET(uri, ApplicationGZip); err != nil {
 				log.Println(err)
 				continue
 			}
-			if err = ioutil.WriteFile(filename, b, 0644); err != nil {
-				log.Println(err)
-				continue
+			if len(b) > 0 {
+				if err = ioutil.WriteFile(filename, b, 0644); err != nil {
+					log.Println(err)
+					continue
+				}
+				filenames = append(filenames, filename)
+			} else {
+				log.Println("No content, skipped", hostname)
 			}
-			filenames = append(filenames, filename)
 		}
 	}
 	return filenames, err

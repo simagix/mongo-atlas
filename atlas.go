@@ -13,8 +13,8 @@ import (
 )
 
 func main() {
-	clusters := flag.Bool("clusters", false, "list atlas clusters")
-	logs := flag.Bool("logs", false, "download and analyze logs")
+	info := flag.Bool("info", false, "list atlas clusters")
+	loginfo := flag.Bool("loginfo", false, "download mongo logs of a group")
 	verbose := flag.Bool("v", false, "verbose")
 
 	flag.Parse()
@@ -26,7 +26,7 @@ func main() {
 	flag.Visit(func(f *flag.Flag) { flagset[f.Name] = true })
 	var err error
 	var api *atlas.API
-	if *clusters == true {
+	if *info == true {
 		if api, err = atlas.ParseURI(flag.Arg(0)); err != nil {
 			log.Fatal(err)
 		}
@@ -36,7 +36,7 @@ func main() {
 			log.Fatal(err)
 		}
 		fmt.Println(str)
-	} else if *logs == true {
+	} else if *loginfo == true {
 		var atl *atlas.Log
 		if atl, err = atlas.ParseLogURI(flag.Arg(0)); err != nil {
 			log.Fatal(err)
@@ -46,6 +46,9 @@ func main() {
 		if filenames, err = atl.Download(); err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(strings.Join(filenames, "\n"))
+		if len(filenames) > 0 {
+			fmt.Println("Files downloaded:")
+			fmt.Println("\t", strings.Join(filenames, "\n\t "))
+		}
 	}
 }

@@ -5,16 +5,19 @@ package atlas
 import (
 	"os"
 	"testing"
+
+	"github.com/simagix/gox"
 )
 
-func TestGetClustersSummary(t *testing.T) {
+func TestGetClusters(t *testing.T) {
 	publicKey := os.Getenv("ATLAS_PUB")
 	privateKey := os.Getenv("ATLAS_PRI")
+	groupID := os.Getenv("ATLAS_GROUP")
 	api := NewKey(publicKey, privateKey)
 	api.SetVerbose(testing.Verbose())
-	if str, err := api.GetClustersSummary(); err != nil {
+	if doc, err := api.GetClusters(groupID); err != nil {
 		t.Fatal(err)
 	} else {
-		t.Log(str)
+		t.Log(gox.Stringify(doc, "", "  "))
 	}
 }
