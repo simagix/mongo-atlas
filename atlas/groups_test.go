@@ -39,7 +39,7 @@ func TestGetGroupIDs(t *testing.T) {
 	privateKey := os.Getenv("ATLAS_PRI")
 	api := NewKey(publicKey, privateKey)
 	api.SetVerbose(testing.Verbose())
-	if doc, err := api.GetGroupIDs(); err != nil {
+	if doc, err := api.GetProjects(); err != nil {
 		t.Fatal(err)
 	} else {
 		t.Log(gox.Stringify(doc, "", "  "))

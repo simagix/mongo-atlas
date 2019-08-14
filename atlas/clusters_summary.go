@@ -14,15 +14,15 @@ import (
 func (api *API) GetClustersSummary() (string, error) {
 	var err error
 	var buffers []string
-	var groupIDs []string
+	var projects []Project
 	var doc map[string]interface{}
 
-	if groupIDs, err = api.GetGroupIDs(); err != nil {
+	if projects, err = api.GetProjects(); err != nil {
 		return "", err
 	}
 
-	for _, groupID := range groupIDs {
-		if doc, err = api.GetClusters(groupID); err != nil {
+	for _, project := range projects {
+		if doc, err = api.GetClusters(project.ID); err != nil {
 			return "", err
 		}
 		_, ok := doc["results"]
@@ -30,7 +30,7 @@ func (api *API) GetClustersSummary() (string, error) {
 			return "", errors.New(gox.Stringify(doc))
 		}
 		clusters := doc["results"]
-		if doc, err = api.GetProcesses(groupID); err != nil {
+		if doc, err = api.GetProcesses(project.ID); err != nil {
 			return "", err
 		}
 		_, ok = doc["results"]
@@ -38,7 +38,8 @@ func (api *API) GetClustersSummary() (string, error) {
 			return "", errors.New(gox.Stringify(doc))
 		}
 		processes := doc["results"]
-		buffers = append(buffers, fmt.Sprint("- Group: ", groupID))
+		buffers = append(buffers, fmt.Sprint("- Project: ", project.Name))
+		buffers = append(buffers, fmt.Sprint("- Group ID: ", project.ID))
 		for _, cluster := range clusters.([]interface{}) {
 			m := cluster.(map[string]interface{})
 			buffers = append(buffers, fmt.Sprint("  - cluster name: ", m["name"]))

@@ -10,6 +10,13 @@ import (
 	"github.com/simagix/gox"
 )
 
+// Project stores project info
+type Project struct {
+	ID    string
+	Name  string
+	OrgID string
+}
+
 // GetGroups get processes of a user
 func (api *API) GetGroups() (map[string]interface{}, error) {
 	var err error
@@ -41,21 +48,24 @@ func (api *API) GetGroupsByID(groupID string) (map[string]interface{}, error) {
 	return doc, err
 }
 
-// GetGroupIDs returns an array of group IDs
-func (api *API) GetGroupIDs() ([]string, error) {
-	var groupIDs []string
+// GetProjects returns an array of group IDs
+func (api *API) GetProjects() ([]Project, error) {
+	var projects []Project
 	var err error
 	var doc map[string]interface{}
 	if doc, err = api.GetGroups(); err != nil {
-		return groupIDs, err
+		return projects, err
 	}
 	_, ok := doc["results"]
 	if !ok {
-		return groupIDs, errors.New(gox.Stringify(doc))
+		return projects, errors.New(gox.Stringify(doc))
 	}
 	results := doc["results"].([]interface{})
 	for _, result := range results {
-		groupIDs = append(groupIDs, result.(map[string]interface{})["id"].(string))
+		var project Project
+		b, _ := json.Marshal(result)
+		json.Unmarshal(b, &project)
+		projects = append(projects, project)
 	}
-	return groupIDs, err
+	return projects, err
 }
