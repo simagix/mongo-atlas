@@ -1,19 +1,32 @@
 #! /bin/bash
-if [ "$ATLAS_AUTH" == "" ]; then
+# Copyright 2019 Kuei-chun Chen. All rights reserved.
+
+if [ "${ATLAS_AUTH}" == "" ]; then
     echo "export ATLAS_AUTH={PUB_KEY}:{PRIVATE_KEY}"
     exit
 fi
 
-if [ "$ATLAS_GROUP" == "" ]; then
+if [ "${ATLAS_GROUP}" == "" ]; then
     echo "ATLAS_GROUP required"
     echo "export ATLAS_GROUP={GROUP_ID}"
     exit
 fi
 
-if [ "$ATLAS_RESOURCE" == "" ]; then
-    echo "ATLAS_RESOURCE required, provide a replica set resource"
-    echo "export ATLAS_RESOURCE=cluster-shard-x"
+
+if [ "${ATLAS_RESOURCE}" == "" ]; then
+    if [ "$1" == "shard" ]; then
+        echo "ATLAS_RESOURCE required, provide a replica set name"
+        echo "export ATLAS_RESOURCE=Cluster0"
+    else
+        echo "ATLAS_RESOURCE required, provide a cluster name"
+        echo "export ATLAS_RESOURCE=Cluster0-shard-0"
+    fi
     exit
+fi
+
+export TYPE="REPLICASET"
+if [ "$1" == "shard" ]; then
+    export TYPE="CLUSTER"
 fi
 
 rtn=$(curl -s --user "${ATLAS_AUTH}" --digest \
@@ -22,8 +35,8 @@ rtn=$(curl -s --user "${ATLAS_AUTH}" --digest \
 --request POST "https://cloud.mongodb.com/api/atlas/v1.0/groups/${ATLAS_GROUP}/logCollectionJobs" \
 --data "
 {
-\"resourceType\": \"REPLICASET\",
-\"resourceName\": \"$ATLAS_RESOURCE\",
+\"resourceType\": \"${TYPE}\",
+\"resourceName\": \"${ATLAS_RESOURCE}\",
 \"redacted\": true,
 \"sizeRequestedPerFileBytes\": 100000000,
 \"logTypes\": [
@@ -33,7 +46,7 @@ rtn=$(curl -s --user "${ATLAS_AUTH}" --digest \
 
 JOB_ID=$(echo $rtn | jq -r '.id')
 
-if [ "$JOB_ID" == null ]; then
+if [ "${JOB_ID}" == null ]; then
     echo $rtn | jq -r '.errorCode'
     exit
 fi
