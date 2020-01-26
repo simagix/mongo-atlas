@@ -52,5 +52,5 @@ ATLAS_RESOURCE=Cluster0-shard-0 get_ftdc.sh
 Resource ID for a sharded cluster is the cluster name.  For example:
 
 ```
-ATLAS_RESOURCE=Cluster0 get_ftdc.sh shard
+ATLAS_RESOURCE=Cluster0 get_ftdc.sh sharded
 ```

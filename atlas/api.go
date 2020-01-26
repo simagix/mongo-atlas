@@ -27,6 +27,7 @@ type API struct {
 	contentType string
 	clusterName string
 	groupID     string
+	params      []string
 	privateKey  string
 	publicKey   string
 	verbose     bool
@@ -39,13 +40,17 @@ func NewKey(publicKey string, privateKey string) *API {
 
 // ParseURI returns API struct from a URI
 func ParseURI(uri string) (*API, error) {
-	api := &API{contentType: ApplicationJSON, acceptType: ApplicationJSON}
+	api := &API{contentType: ApplicationJSON, acceptType: ApplicationJSON, params: []string{}}
 	if strings.HasPrefix(uri, "atlas://") == true {
 		uri = uri[8:]
 	}
 	i := strings.Index(uri, "@")
 	if i > 0 {
 		tailer := uri[i+1:]
+		if q := strings.Index(tailer, "?"); q > 0 {
+			api.params = strings.Split(tailer[q+1:], "&")
+			tailer = tailer[:q]
+		}
 		if n := strings.Index(tailer, "/"); n > 0 {
 			api.groupID = tailer[:n]
 			api.clusterName = tailer[n+1:]

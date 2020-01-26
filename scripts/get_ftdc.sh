@@ -14,7 +14,7 @@ fi
 
 
 if [ "${ATLAS_RESOURCE}" == "" ]; then
-    if [ "$1" == "shard" ]; then
+    if [ "$1" == "sharded" ]; then
         echo "ATLAS_RESOURCE required, provide a replica set name"
         echo "export ATLAS_RESOURCE=Cluster0"
     else
@@ -25,7 +25,7 @@ if [ "${ATLAS_RESOURCE}" == "" ]; then
 fi
 
 export TYPE="REPLICASET"
-if [ "$1" == "shard" ]; then
+if [ "$1" == "sharded" ]; then
     export TYPE="CLUSTER"
 fi
 

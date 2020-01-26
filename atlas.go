@@ -12,16 +12,23 @@ import (
 	"github.com/simagix/mongo-atlas/atlas"
 )
 
+var version = "self-built"
+
 func main() {
+	ftdc := flag.Bool("ftdc", false, "download FTDC")
 	info := flag.Bool("info", false, "list Atlas clusters")
 	loginfo := flag.Bool("loginfo", false, "download mongo logs of a group")
 	pause := flag.Bool("pause", false, "pause a cluster")
 	request := flag.String("request", "", "HTTP command")
 	resume := flag.Bool("resume", false, "resume a cluster")
 	verbose := flag.Bool("v", false, "verbose")
+	ver := flag.Bool("version", false, "print version number")
 
 	flag.Parse()
-	if len(flag.Args()) == 0 {
+	if *ver {
+		fmt.Println("matlas", version)
+		os.Exit(0)
+	} else if len(flag.Args()) == 0 {
 		fmt.Println("Usage: atlas [flags] uri")
 		os.Exit(1)
 	}
@@ -53,6 +60,11 @@ func main() {
 	var str string
 	if *info == true {
 		if str, err = api.GetClustersSummary(); err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(str)
+	} else if *ftdc == true {
+		if str, err = api.DownloadFTDC(); err != nil {
 			log.Fatal(err)
 		}
 		fmt.Println(str)
