@@ -36,23 +36,6 @@ func main() {
 	flag.Visit(func(f *flag.Flag) { flagset[f.Name] = true })
 	var err error
 	var api *atlas.API
-	if *loginfo == true {
-		var atl *atlas.Log
-		if atl, err = atlas.ParseLogURI(flag.Arg(0)); err != nil {
-			log.Fatal(err)
-		}
-		atl.SetVerbose(*verbose)
-		var filenames []string
-		if filenames, err = atl.Download(); err != nil {
-			log.Fatal(err)
-		}
-		if len(filenames) > 0 {
-			fmt.Println("Files downloaded:")
-			fmt.Println("\t", strings.Join(filenames, "\n\t "))
-		}
-		os.Exit(0)
-	}
-
 	if api, err = atlas.ParseURI(flag.Arg(0)); err != nil {
 		log.Fatal(err)
 	}
@@ -63,6 +46,15 @@ func main() {
 			log.Fatal(err)
 		}
 		fmt.Println(str)
+	} else if *loginfo == true {
+		var filenames []string
+		if filenames, err = api.DownloadLogs(); err != nil {
+			log.Fatal(err)
+		}
+		if len(filenames) > 0 {
+			fmt.Println("Files downloaded:")
+			fmt.Println("\t", strings.Join(filenames, "\n\t "))
+		}
 	} else if *ftdc == true {
 		if str, err = api.DownloadFTDC(); err != nil {
 			log.Fatal(err)

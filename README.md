@@ -5,9 +5,8 @@ Invoke MongoDB Atlas API using Golang.
 - Clusters summary
 - Create/Terminate a cluster
 - Start/Pause a cluster
+- Download FTDC
 - Download Logs
-- Download FTDC (TODO)
-- Billing/Invoices (TODO)
 
 ## Get clusters summary
 
@@ -28,9 +27,10 @@ matlas --resume "atlas://{pub_key}:{pri_key}@{group}/{cluster}"
 ```
 
 ## Download log files
+By default, without specifying startDate nor endDate, it downloads today's logs.
 
 ```
-matlas --loginfo "atlas://{pub_key}:{pri_key}@{group}/{cluster}/[/yyyy-mm-dd]"
+matlas --loginfo "atlas://{pub_key}:{pri_key}@{group}/{cluster}[?startDate=yyyy-mm-dd&endDate=yyyy-mm-dd]"
 ```
 
 ## Create a Cluster
