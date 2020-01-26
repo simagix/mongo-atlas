@@ -15,6 +15,8 @@ import (
 func main() {
 	info := flag.Bool("info", false, "list atlas clusters")
 	loginfo := flag.Bool("loginfo", false, "download mongo logs of a group")
+	pause := flag.Bool("pause", false, "pause a cluster")
+	resume := flag.Bool("resume", false, "resume a cluster")
 	verbose := flag.Bool("v", false, "verbose")
 
 	flag.Parse()
@@ -50,5 +52,25 @@ func main() {
 			fmt.Println("Files downloaded:")
 			fmt.Println("\t", strings.Join(filenames, "\n\t "))
 		}
+	} else if *resume == true {
+		if api, err = atlas.ParseURI(flag.Arg(0)); err != nil {
+			log.Fatal(err)
+		}
+		api.SetVerbose(*verbose)
+		var str string
+		if str, err = api.Resume(); err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(str)
+	} else if *pause == true {
+		if api, err = atlas.ParseURI(flag.Arg(0)); err != nil {
+			log.Fatal(err)
+		}
+		api.SetVerbose(*verbose)
+		var str string
+		if str, err = api.Pause(); err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(str)
 	}
 }

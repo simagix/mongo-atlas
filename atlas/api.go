@@ -22,9 +22,11 @@ const ApplicationGZip = "application/gzip"
 
 // API stores Atlas API key
 type API struct {
-	publicKey  string
-	privateKey string
-	verbose    bool
+	publicKey   string
+	privateKey  string
+	groupID     string
+	clusterName string
+	verbose     bool
 }
 
 // NewKey returns API struct
@@ -34,18 +36,24 @@ func NewKey(publicKey string, privateKey string) *API {
 
 // ParseURI returns API struct from a URI
 func ParseURI(uri string) (*API, error) {
+	api := &API{}
 	if strings.HasPrefix(uri, "atlas://") == true {
 		uri = uri[8:]
 	}
 	i := strings.Index(uri, "@")
 	if i > 0 {
+		tailer := strings.Split(uri[i+1:], "/")
+		api.groupID = tailer[0]
+		api.clusterName = tailer[1]
 		uri = uri[:i]
 	}
 	i = strings.LastIndex(uri, ":")
 	if i < 0 {
-		return nil, errors.New("invalid format ([atlas://]publicKey:privateKey)")
+		return nil, errors.New("invalid format ([atlas://]publicKey:privateKey[@group/cluster])")
 	}
-	return &API{publicKey: uri[:i], privateKey: uri[i+1:]}, nil
+	api.publicKey = uri[:i]
+	api.privateKey = uri[i+1:]
+	return api, nil
 }
 
 // SetVerbose sets verbose
@@ -63,6 +71,23 @@ func (api *API) GET(uri string, accept string) ([]byte, error) {
 	headers["Content-Type"] = ApplicationJSON
 	headers["Accept"] = accept
 	if resp, err = gox.HTTPDigest("GET", uri, api.publicKey, api.privateKey, headers); err != nil {
+		return b, err
+	}
+	defer resp.Body.Close()
+	b, err = ioutil.ReadAll(resp.Body)
+	return b, err
+}
+
+// PATCH performs HTTP PATCH function
+func (api *API) PATCH(uri string, accept string, body []byte) ([]byte, error) {
+	var err error
+	var resp *http.Response
+	var b []byte
+
+	headers := map[string]string{}
+	headers["Content-Type"] = ApplicationJSON
+	headers["Accept"] = accept
+	if resp, err = gox.HTTPDigest("PATCH", uri, api.publicKey, api.privateKey, headers, body); err != nil {
 		return b, err
 	}
 	defer resp.Body.Close()
