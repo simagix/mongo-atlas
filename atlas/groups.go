@@ -24,7 +24,7 @@ func (api *API) GetGroups() (map[string]interface{}, error) {
 	var b []byte
 
 	uri := BaseURL + "/groups"
-	if b, err = api.GET(uri, ApplicationJSON); err != nil {
+	if b, err = api.Get(uri); err != nil {
 		return doc, err
 	}
 	json.Unmarshal(b, &doc)
@@ -41,7 +41,7 @@ func (api *API) GetGroupsByID(groupID string) (map[string]interface{}, error) {
 	var b []byte
 
 	uri := BaseURL + "/groups/" + groupID
-	if b, err = api.GET(uri, ApplicationJSON); err != nil {
+	if b, err = api.Get(uri); err != nil {
 		return nil, err
 	}
 	json.Unmarshal(b, &doc)

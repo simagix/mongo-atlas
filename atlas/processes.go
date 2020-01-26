@@ -16,7 +16,7 @@ func (api *API) GetProcesses(groupID string) (map[string]interface{}, error) {
 	var b []byte
 
 	uri := BaseURL + "/groups/" + groupID + "/processes"
-	if b, err = api.GET(uri, ApplicationJSON); err != nil {
+	if b, err = api.Get(uri); err != nil {
 		return nil, err
 	}
 	json.Unmarshal(b, &doc)

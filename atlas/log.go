@@ -79,7 +79,8 @@ func (atl *Log) Download() ([]string, error) {
 				log.Println("download from", uri)
 			}
 			var b []byte
-			if b, err = api.GET(uri, ApplicationGZip); err != nil {
+			api.SetAcceptType(ApplicationGZip)
+			if b, err = api.Get(uri); err != nil {
 				log.Println(err)
 				continue
 			}

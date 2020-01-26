@@ -2,8 +2,9 @@
 Invoke MongoDB Atlas API using Golang.
 
 ## Supported Functions
-- Cluster summary
-- Start/Pause cluster
+- Clusters summary
+- Create/Terminate a cluster
+- Start/Pause a cluster
 - Download Logs
 - Download FTDC (TODO)
 - Billing/Invoices (TODO)
@@ -30,4 +31,27 @@ matlas --resume "atlas://{pub_key}:{pri_key}@{group}/{cluster}"
 
 ```
 matlas --loginfo "atlas://{pub_key}:{pri_key}@{group}/{cluster}/[/yyyy-mm-dd]"
+```
+
+## Create a Cluster
+
+```
+matlas --request POST "{pub_key}:{pri_key}@{group}" '
+{
+    "name": "Cluster0",
+    "numShards": 1,
+    "providerSettings": {
+        "providerName": "AWS",
+        "instanceSizeName": "M10",
+        "regionName": "US_EAST_1"
+    },
+    "clusterType" : "REPLICASET",
+    "backupEnabled": false
+}'
+```
+
+## Terminate a Cluster
+
+```
+matlas --request DELETE "{pub_key}:{pri_key}@{group}/{cluster}"
 ```

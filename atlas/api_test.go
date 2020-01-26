@@ -45,7 +45,7 @@ func TestGET(t *testing.T) {
 	groupID := os.Getenv("ATLAS_GROUP")
 	api := NewKey(publicKey, privateKey)
 	uri := BaseURL + "/groups/" + groupID + "/clusters"
-	if _, err := api.GET(uri, ApplicationJSON); err != nil {
+	if _, err := api.Get(uri); err != nil {
 		t.Fatal(err)
 	}
 }
