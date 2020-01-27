@@ -13,6 +13,11 @@ import (
 	"github.com/simagix/gox"
 )
 
+type entity struct {
+	hostname string
+	log      string
+}
+
 // DownloadLogs downloads logs
 func (api *API) DownloadLogs() ([]string, error) {
 	var err error
@@ -29,6 +34,7 @@ func (api *API) DownloadLogs() ([]string, error) {
 	processes := doc["results"]
 	startDate := time.Time{}
 	endDate := time.Time{}
+	hostname := ""
 	for _, param := range api.params {
 		s := strings.Split(param, "=")
 		if s[0] == "startDate" {
@@ -36,6 +42,8 @@ func (api *API) DownloadLogs() ([]string, error) {
 		} else if s[0] == "endDate" {
 			endDate, _ = time.Parse("2006-01-02", s[1])
 			endDate = endDate.Add(time.Hour * 24)
+		} else if s[0] == "hostname" {
+			hostname = s[1]
 		}
 	}
 
@@ -48,32 +56,42 @@ func (api *API) DownloadLogs() ([]string, error) {
 		startDate = endDate.Add(time.Hour * -24)
 	}
 	log.Println("download files from", startDate.Format("2006.01.02 15:04:05"), "to", endDate.Format("2006.01.02 15:04:05"))
+	hosts := []entity{}
 	for _, process := range processes.([]interface{}) {
 		maps := process.(map[string]interface{})
-		if strings.Index(strings.ToLower(maps["hostname"].(string)), strings.ToLower(api.clusterName+"-")) == 0 &&
-			strings.Index(maps["typeName"].(string), "REPLICA_") == 0 {
-			hostname := maps["hostname"].(string)
-			filename := "./mongodb.log." + hostname + ".gz"
-			uri := BaseURL + "/groups/" + api.groupID + "/clusters/" + hostname + "/logs/mongodb.gz"
-			uri += "?startDate=" + fmt.Sprintf("%v", startDate.Unix()) + "&endDate=" + fmt.Sprintf("%v", endDate.Unix())
-			if api.verbose {
-				log.Println("download from", uri)
-			}
-			var b []byte
-			api.SetAcceptType(ApplicationGZip)
-			if b, err = api.Get(uri); err != nil {
+		process := maps["typeName"].(string)
+		host := maps["hostname"].(string)
+		if hostname != "" && hostname != host {
+			continue
+		}
+		if process == "REPLICA_PRIMARY" || process == "REPLICA_SECONDARY" {
+			hosts = append(hosts, entity{hostname: host, log: "mongodb.gz"})
+		} else if process == "SHARD_MONGOS" {
+			hosts = append(hosts, entity{hostname: host, log: "mongos.gz"})
+		}
+	}
+
+	for _, host := range hosts {
+		filename := host.hostname + "-" + host.log
+		uri := BaseURL + "/groups/" + api.groupID + "/clusters/" + host.hostname + "/logs/" + host.log
+		uri += "?startDate=" + fmt.Sprintf("%v", startDate.Unix()) + "&endDate=" + fmt.Sprintf("%v", endDate.Unix())
+		if api.verbose {
+			log.Println("download from", uri)
+		}
+		var b []byte
+		api.SetAcceptType(ApplicationGZip)
+		if b, err = api.Get(uri); err != nil {
+			log.Println(err)
+			continue
+		}
+		if len(b) > 0 {
+			if err = ioutil.WriteFile(filename, b, 0644); err != nil {
 				log.Println(err)
 				continue
 			}
-			if len(b) > 0 {
-				if err = ioutil.WriteFile(filename, b, 0644); err != nil {
-					log.Println(err)
-					continue
-				}
-				filenames = append(filenames, filename)
-			} else {
-				log.Println("No content, skipped", hostname)
-			}
+			filenames = append(filenames, filename)
+		} else {
+			log.Println("No content, skipped", host.hostname)
 		}
 	}
 	return filenames, err

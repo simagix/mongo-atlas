@@ -29,9 +29,8 @@ go run atlas.go --request POST "${ATLAS_AUTH}@${ATLAS_GROUP}" '
 }'
 
 echo "=> Test --loginfo"
-go run atlas.go --loginfo "${ATLAS_AUTH}@${ATLAS_GROUP}/${ATLAS_CLUSTER}/$(date '+%Y-%m-%d')"
-ls -l mongodb.*.gz
-rm -f mongodb.*.gz
+go run atlas.go --loginfo "${ATLAS_AUTH}@${ATLAS_GROUP}/${ATLAS_CLUSTER}?endDate=$(date '+%Y-%m-%d')"
+go run atlas.go --loginfo "${ATLAS_AUTH}@${ATLAS_GROUP}/${ATLAS_CLUSTER}?startDate=$(date '+%Y-%m-%d')&hostname=matlas-shard-00-00-jgtm2.mongodb.net"
 
 echo "=> Test --ftdc REPLICASET"
 go run atlas.go --ftdc "${ATLAS_AUTH}@${ATLAS_GROUP}/${ATLAS_CLUSTER}-shard-0-node-0"
