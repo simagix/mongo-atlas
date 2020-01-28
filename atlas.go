@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
 
 	"github.com/simagix/mongo-atlas/atlas"
 )
@@ -39,45 +38,13 @@ func main() {
 	if api, err = atlas.ParseURI(flag.Arg(0)); err != nil {
 		log.Fatal(err)
 	}
+	api.SetArgs(flag.Args())
+	api.SetFTDC(*ftdc)
+	api.SetInfo(*info)
+	api.SetPause(*pause)
+	api.SetResume(*resume)
+	api.SetLoginfo(*loginfo)
+	api.SetRequest(*request)
 	api.SetVerbose(*verbose)
-	var str string
-	if *info == true {
-		if str, err = api.GetClustersSummary(); err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(str)
-	} else if *loginfo == true {
-		var filenames []string
-		if filenames, err = api.DownloadLogs(); err != nil {
-			log.Fatal(err)
-		}
-		if len(filenames) > 0 {
-			fmt.Println("Files downloaded:")
-			fmt.Println("\t", strings.Join(filenames, "\n\t "))
-		}
-	} else if *ftdc == true {
-		if str, err = api.DownloadFTDC(); err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(str)
-	} else if *resume == true {
-		if str, err = api.Do("PATCH", `{ "paused": false }`); err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(str)
-	} else if *pause == true {
-		if str, err = api.Do("PATCH", `{ "paused": true }`); err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(str)
-	} else if *request != "" {
-		data := "{}"
-		if len(flag.Args()) > 1 {
-			data = flag.Arg(1)
-		}
-		if str, err = api.Do(*request, data); err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(str)
-	}
+	fmt.Println(api.Execute())
 }

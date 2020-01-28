@@ -4,6 +4,7 @@ package atlas
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -27,7 +28,6 @@ type FTDC struct {
 func (api *API) DownloadFTDC() (string, error) {
 	var err error
 	var resp *http.Response
-	var str string
 	doc := map[string]interface{}{}
 
 	downloadSize := 10 * 1024 * 1024
@@ -66,6 +66,9 @@ func (api *API) DownloadFTDC() (string, error) {
 	body, _ = ioutil.ReadAll(resp.Body)
 	resp.Body.Close()
 	json.Unmarshal(body, &doc)
+	if doc["id"] == nil {
+		return "", errors.New("Error creating logCollection job")
+	}
 	jobID := doc["id"].(string)
 	fmt.Println(gox.Stringify(doc, "", "  "))
 
@@ -85,7 +88,7 @@ func (api *API) DownloadFTDC() (string, error) {
 	uri = BaseURL + "/groups/" + api.groupID + "/logCollectionJobs/" + jobID + "/download"
 	body, _ = api.Get(uri)
 	fname := api.clusterName + "-diagnostic.tar.gz"
-	fmt.Println("Output to", fname)
+
 	ioutil.WriteFile(fname, body, 0644)
 
 	// delete the log collection job
@@ -99,5 +102,5 @@ func (api *API) DownloadFTDC() (string, error) {
 	body, _ = ioutil.ReadAll(resp.Body)
 	json.Unmarshal(body, &doc)
 	fmt.Println(gox.Stringify(doc, "", "  "))
-	return str, err
+	return fmt.Sprintf("FTDC archive was written to %v", fname), err
 }

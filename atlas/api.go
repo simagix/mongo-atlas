@@ -24,12 +24,20 @@ const ApplicationGZip = "application/gzip"
 // API stores Atlas API key
 type API struct {
 	acceptType  string
+	args        []string
 	contentType string
 	clusterName string
+	ftdc        bool
 	groupID     string
+	info        bool
+	loginfo     bool
+	logNames    []string
+	pause       bool
+	resume      bool
 	params      []string
 	privateKey  string
 	publicKey   string
+	request     string
 	verbose     bool
 }
 
@@ -68,14 +76,54 @@ func ParseURI(uri string) (*API, error) {
 	return api, nil
 }
 
+// GetLogNames gets downloaded log names
+func (api *API) GetLogNames() []string {
+	return api.logNames
+}
+
 // SetAcceptType sets acceptType
 func (api *API) SetAcceptType(acceptType string) {
 	api.acceptType = acceptType
 }
 
+// SetArgs sets args
+func (api *API) SetArgs(args []string) {
+	api.args = args
+}
+
 // SetContentType sets contentType
 func (api *API) SetContentType(contentType string) {
 	api.contentType = contentType
+}
+
+// SetFTDC sets ftdc
+func (api *API) SetFTDC(ftdc bool) {
+	api.ftdc = ftdc
+}
+
+// SetInfo sets info
+func (api *API) SetInfo(info bool) {
+	api.info = info
+}
+
+// SetLoginfo sets loginfo
+func (api *API) SetLoginfo(loginfo bool) {
+	api.loginfo = loginfo
+}
+
+// SetPause sets pause
+func (api *API) SetPause(pause bool) {
+	api.pause = pause
+}
+
+// SetRequest sets request
+func (api *API) SetRequest(request string) {
+	api.request = request
+}
+
+// SetResume sets resume
+func (api *API) SetResume(resume bool) {
+	api.resume = resume
 }
 
 // SetVerbose sets verbose
@@ -142,4 +190,49 @@ func (api *API) Do(method string, data string) (string, error) {
 	b, err = ioutil.ReadAll(resp.Body)
 	json.Unmarshal(b, &doc)
 	return gox.Stringify(doc, "", "  "), err
+}
+
+// Execute executes rest calls
+func (api *API) Execute() string {
+	var err error
+	var str string
+	if api.info == true {
+		if str, err = api.GetClustersSummary(); err != nil {
+			return err.Error()
+		}
+		return str
+	} else if api.loginfo == true {
+		if api.logNames, err = api.DownloadLogs(); err != nil {
+			return err.Error()
+		}
+		if len(api.logNames) > 0 {
+			return "Files downloaded:\n" + "\t" + strings.Join(api.logNames, "\n\t ")
+		}
+		return "No file downloaded"
+	} else if api.ftdc == true {
+		if str, err = api.DownloadFTDC(); err != nil {
+			return err.Error()
+		}
+		return str
+	} else if api.resume == true {
+		if str, err = api.Do("PATCH", `{ "paused": false }`); err != nil {
+			return err.Error()
+		}
+		return str
+	} else if api.pause == true {
+		if str, err = api.Do("PATCH", `{ "paused": true }`); err != nil {
+			return err.Error()
+		}
+		return str
+	} else if api.request != "" {
+		data := "{}"
+		if len(api.args) > 1 {
+			data = api.args[1]
+		}
+		if str, err = api.Do(api.request, data); err != nil {
+			return err.Error()
+		}
+		return str
+	}
+	return "No argument included"
 }

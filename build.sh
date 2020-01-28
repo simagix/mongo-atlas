@@ -14,7 +14,7 @@ fi
 
 $DEP ensure $UPDATE
 
-export ver="0.5.1"
+export ver="0.5.2"
 export version="v${ver}-$(date "+%Y%m%d")"
 mkdir -p build
 # env GOOS=linux GOARCH=amd64 go build -ldflags "-X main.version=$version" -o build/matlas-linux-x64 atlas.go
