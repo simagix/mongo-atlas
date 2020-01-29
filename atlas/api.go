@@ -3,10 +3,13 @@
 package atlas
 
 import (
+	"bufio"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/simagix/gox"
@@ -228,6 +231,15 @@ func (api *API) Execute() string {
 		data := "{}"
 		if len(api.args) > 1 {
 			data = api.args[1]
+		}
+		if api.request == "DELETE" {
+			reader := bufio.NewReader(os.Stdin)
+			fmt.Print("Enter cluster name (", api.clusterName, "): ")
+			text, _ := reader.ReadString('\n')
+			text = strings.TrimRight(text, "\n")
+			if text != api.clusterName {
+				return "Cluster name does not match"
+			}
 		}
 		if str, err = api.Do(api.request, data); err != nil {
 			return err.Error()
