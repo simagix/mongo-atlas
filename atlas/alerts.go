@@ -12,25 +12,8 @@ import (
 	"github.com/simagix/gox"
 )
 
-// GetClusters gets clusters by a group
-func (api *API) GetClusters(groupID string) (map[string]interface{}, error) {
-	var err error
-	var doc map[string]interface{}
-	var b []byte
-
-	uri := BaseURL + "/groups/" + groupID + "/clusters"
-	if b, err = api.Get(uri); err != nil {
-		return nil, err
-	}
-	json.Unmarshal(b, &doc)
-	if api.verbose == true {
-		fmt.Println(gox.Stringify(doc, "", "  "))
-	}
-	return doc, err
-}
-
-// ClustersDo execute a command
-func (api *API) ClustersDo(method string, data string) (string, error) {
+// AlertsDo execute a command
+func (api *API) AlertsDo(method string, data string) (string, error) {
 	var err error
 	var resp *http.Response
 	var doc map[string]interface{}
@@ -39,10 +22,7 @@ func (api *API) ClustersDo(method string, data string) (string, error) {
 	if api.groupID == "" {
 		return "", errors.New("invalid format ([atlas://]publicKey:privateKey@group)")
 	}
-	uri := BaseURL + "/groups/" + api.groupID + "/clusters"
-	if api.clusterName != "" {
-		uri += "/" + api.clusterName
-	}
+	uri := BaseURL + "/groups/" + api.groupID + "/alertConfigs"
 	body := []byte(data)
 	headers := map[string]string{}
 	headers["Content-Type"] = api.contentType
@@ -54,4 +34,22 @@ func (api *API) ClustersDo(method string, data string) (string, error) {
 	b, err = ioutil.ReadAll(resp.Body)
 	json.Unmarshal(b, &doc)
 	return gox.Stringify(doc, "", "  "), err
+}
+
+// AddAlerts reads from a file and set alerts
+func (api *API) AddAlerts(filename string) (string, error) {
+	var err error
+	var buf []byte
+	var str string
+	var alerts []map[string]interface{}
+	if buf, err = ioutil.ReadFile(filename); err != nil {
+		return "", err
+	}
+
+	json.Unmarshal(buf, &alerts)
+	for _, alert := range alerts {
+		str, err = api.AlertsDo("POST", gox.Stringify(alert))
+		fmt.Println(str)
+	}
+	return "", err
 }

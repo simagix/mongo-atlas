@@ -7,6 +7,8 @@ Invoke MongoDB Atlas API using Golang.
 - Start/Pause a cluster
 - Download FTDC
 - Download Logs
+- Display Alerts Settings
+- Add Recommended Alerts
 
 ## Get clusters summary
 
@@ -54,4 +56,16 @@ matlas --request POST "{pub_key}:{pri_key}@{group}" '
 
 ```
 matlas --request DELETE "{pub_key}:{pri_key}@{group}/{cluster}"
+```
+
+## Get All Alerts
+
+```
+matlas --alerts "{pub_key}:{pri_key}@{group}"
+```
+
+## Configure Recommended Alerts
+
+```
+matlas --addAlerts conf/alerts.json "{pub_key}:{pri_key}@{group}"
 ```

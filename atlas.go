@@ -14,6 +14,8 @@ import (
 var version = "self-built"
 
 func main() {
+	alertsFile := flag.String("addAlerts", "", "add all alerts")
+	alerts := flag.Bool("alerts", false, "get all alerts")
 	ftdc := flag.Bool("ftdc", false, "download FTDC")
 	info := flag.Bool("info", false, "list Atlas clusters")
 	loginfo := flag.Bool("loginfo", false, "download mongo logs of a group")
@@ -38,6 +40,8 @@ func main() {
 	if api, err = atlas.ParseURI(flag.Arg(0)); err != nil {
 		log.Fatal(err)
 	}
+	api.SetAlertsFile(*alertsFile)
+	api.SetAlerts(*alerts)
 	api.SetArgs(flag.Args())
 	api.SetFTDC(*ftdc)
 	api.SetInfo(*info)

@@ -1,0 +1,91 @@
+[{
+		"eventTypeName": "OUTSIDE_METRIC_THRESHOLD",
+		"enabled": true,
+		"notifications": [{
+			"delayMin": 0,
+			"emailEnabled": true,
+			"intervalMin": 60,
+			"smsEnabled": false,
+			"typeName": "GROUP"
+		}],
+		"metricThreshold": {
+			"metricName": "DISK_PARTITION_SPACE_USED_DATA",
+			"mode": "AVERAGE",
+			"operator": "GREATER_THAN",
+			"threshold": 80.0,
+			"units": "RAW"
+		}
+	},
+	{
+		"eventTypeName": "OUTSIDE_METRIC_THRESHOLD",
+		"enabled": true,
+		"notifications": [{
+			"delayMin": 0,
+			"emailEnabled": true,
+			"intervalMin": 60,
+			"smsEnabled": false,
+			"typeName": "GROUP"
+		}],
+		"metricThreshold": {
+			"metricName": "EXTRA_INFO_PAGE_FAULTS",
+			"mode": "AVERAGE",
+			"operator": "GREATER_THAN",
+			"threshold": 10.0,
+			"units": "RAW"
+		}
+	},
+	{
+		"eventTypeName": "OUTSIDE_METRIC_THRESHOLD",
+		"enabled": true,
+		"notifications": [{
+			"delayMin": 0,
+			"emailEnabled": true,
+			"intervalMin": 60,
+			"smsEnabled": false,
+			"typeName": "GROUP"
+		}],
+		"metricThreshold": {
+			"metricName": "GLOBAL_LOCK_CURRENT_QUEUE_TOTAL",
+			"mode": "AVERAGE",
+			"operator": "GREATER_THAN",
+			"threshold": 100.0,
+			"units": "RAW"
+		}
+	},
+	{
+		"eventTypeName": "OUTSIDE_METRIC_THRESHOLD",
+		"enabled": true,
+		"notifications": [{
+			"delayMin": 0,
+			"emailEnabled": true,
+			"intervalMin": 60,
+			"smsEnabled": false,
+			"typeName": "GROUP"
+		}],
+		"metricThreshold": {
+			"metricName": "OPLOG_MASTER_TIME",
+			"mode": "AVERAGE",
+			"operator": "LESS_THAN",
+			"threshold": 48.0,
+			"units": "HOURS"
+		}
+	},
+	{
+		"eventTypeName": "OUTSIDE_METRIC_THRESHOLD",
+		"enabled": true,
+		"notifications": [{
+			"delayMin": 10,
+			"emailEnabled": true,
+			"intervalMin": 60,
+			"smsEnabled": false,
+			"typeName": "GROUP"
+		}],
+		"metricThreshold": {
+			"metricName": "OPLOG_SLAVE_LAG_MASTER_TIME",
+			"mode": "AVERAGE",
+			"operator": "GREATER_THAN",
+			"threshold": 300.0,
+			"units": "SECONDS"
+		}
+	}
+]

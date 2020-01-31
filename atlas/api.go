@@ -4,7 +4,6 @@ package atlas
 
 import (
 	"bufio"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -27,6 +26,8 @@ const ApplicationGZip = "application/gzip"
 // API stores Atlas API key
 type API struct {
 	acceptType  string
+	alerts      bool
+	alertsFile  string
 	args        []string
 	contentType string
 	clusterName string
@@ -87,6 +88,16 @@ func (api *API) GetLogNames() []string {
 // SetAcceptType sets acceptType
 func (api *API) SetAcceptType(acceptType string) {
 	api.acceptType = acceptType
+}
+
+// SetAlerts sets alerts
+func (api *API) SetAlerts(alerts bool) {
+	api.alerts = alerts
+}
+
+// SetAlertsFile sets alerts
+func (api *API) SetAlertsFile(alertsFile string) {
+	api.alertsFile = alertsFile
 }
 
 // SetArgs sets args
@@ -168,33 +179,6 @@ func (api *API) Patch(uri string, body []byte) ([]byte, error) {
 	return b, err
 }
 
-// Do execute a command
-func (api *API) Do(method string, data string) (string, error) {
-	var err error
-	var resp *http.Response
-	var doc map[string]interface{}
-	var b []byte
-
-	if api.groupID == "" {
-		return "", errors.New("invalid format ([atlas://]publicKey:privateKey@group)")
-	}
-	uri := BaseURL + "/groups/" + api.groupID + "/clusters"
-	if api.clusterName != "" {
-		uri += "/" + api.clusterName
-	}
-	body := []byte(data)
-	headers := map[string]string{}
-	headers["Content-Type"] = api.contentType
-	headers["Accept"] = api.acceptType
-	if resp, err = gox.HTTPDigest(method, uri, api.publicKey, api.privateKey, headers, body); err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-	b, err = ioutil.ReadAll(resp.Body)
-	json.Unmarshal(b, &doc)
-	return gox.Stringify(doc, "", "  "), err
-}
-
 // Execute executes rest calls
 func (api *API) Execute() string {
 	var err error
@@ -218,12 +202,12 @@ func (api *API) Execute() string {
 		}
 		return str
 	} else if api.resume == true {
-		if str, err = api.Do("PATCH", `{ "paused": false }`); err != nil {
+		if str, err = api.ClustersDo("PATCH", `{ "paused": false }`); err != nil {
 			return err.Error()
 		}
 		return str
 	} else if api.pause == true {
-		if str, err = api.Do("PATCH", `{ "paused": true }`); err != nil {
+		if str, err = api.ClustersDo("PATCH", `{ "paused": true }`); err != nil {
 			return err.Error()
 		}
 		return str
@@ -241,7 +225,17 @@ func (api *API) Execute() string {
 				return "Cluster name does not match"
 			}
 		}
-		if str, err = api.Do(api.request, data); err != nil {
+		if str, err = api.ClustersDo(api.request, data); err != nil {
+			return err.Error()
+		}
+		return str
+	} else if api.alerts == true {
+		if str, err = api.AlertsDo("GET", `{ }`); err != nil {
+			return err.Error()
+		}
+		return str
+	} else if api.alertsFile != "" {
+		if str, err = api.AddAlerts(api.alertsFile); err != nil {
 			return err.Error()
 		}
 		return str
