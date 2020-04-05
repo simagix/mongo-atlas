@@ -29,6 +29,23 @@ func (api *API) GetClusters(groupID string) (map[string]interface{}, error) {
 	return doc, err
 }
 
+// GetCluster gets clusters by a group
+func (api *API) GetCluster(groupID string, clusterName string) (map[string]interface{}, error) {
+	var err error
+	var doc map[string]interface{}
+	var b []byte
+
+	uri := BaseURL + "/groups/" + groupID + "/clusters/" + clusterName
+	if b, err = api.Get(uri); err != nil {
+		return nil, err
+	}
+	json.Unmarshal(b, &doc)
+	if api.verbose == true {
+		fmt.Println(gox.Stringify(doc, "", "  "))
+	}
+	return doc, err
+}
+
 // ClustersDo execute a command
 func (api *API) ClustersDo(method string, data string) (string, error) {
 	var err error
