@@ -5,7 +5,6 @@ Invoke MongoDB Atlas API using Golang.
 - Clusters summary
 - Create/Terminate a cluster
 - Start/Pause a cluster
-- Download FTDC
 - Download Logs
 - Display Alerts Settings
 - Add Recommended Alerts

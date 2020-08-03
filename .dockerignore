@@ -1,0 +1,4 @@
+**/.git
+**/testdata
+bin/
+vendor/
