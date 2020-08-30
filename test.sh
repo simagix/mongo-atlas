@@ -1,7 +1,7 @@
 #! /bin/bash
 # Copyright 2019 Kuei-chun Chen. All rights reserved.
 
-if [ "${ATLAS_AUTH}" == "" ];
+if [ "${ATLAS_AUTH}" == "" ]; then
     echo "export ATLAS_CLUSTER={pub_key}:{pri_key}"
     exit
 fi
@@ -9,7 +9,7 @@ fi
 echo "=> Test --info"
 go run atlas.go --info "${ATLAS_AUTH}"
 
-if [ "${ATLAS_CLUSTER}" == "" ];
+if [ "${ATLAS_CLUSTER}" == "" ]; then
     export ATLAS_CLUSTER=Cluster0
 fi
 
@@ -54,5 +54,5 @@ echo "=> Test --resume"
 go run atlas.go --resume "${ATLAS_AUTH}@${ATLAS_GROUP}/${ATLAS_CLUSTER}"
 
 echo "=> Test --request DELETE"
-# go run atlas.go --request DELETE "${ATLAS_AUTH}@${ATLAS_GROUP}/${ATLAS_CLUSTER}"
+go run atlas.go --request DELETE "${ATLAS_AUTH}@${ATLAS_GROUP}/${ATLAS_CLUSTER}"
 

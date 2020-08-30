@@ -1,6 +1,6 @@
 [[constraint]]
-  branch = "master"
-  name = "github.com/simagix/gox"
+  branch = "2.5"
+  name = "github.com/simagix/keyhole"
 
 [prune]
   go-tests = true

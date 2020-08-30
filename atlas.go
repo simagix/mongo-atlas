@@ -8,7 +8,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/simagix/mongo-atlas/atlas"
+	"github.com/simagix/keyhole/atlas"
 )
 
 var version = "self-built"
