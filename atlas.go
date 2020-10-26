@@ -11,6 +11,7 @@ import (
 	"github.com/simagix/keyhole/atlas"
 )
 
+var repo = "simagix/mongo-atlas"
 var version = "self-built"
 
 func main() {
@@ -27,7 +28,8 @@ func main() {
 
 	flag.Parse()
 	if *ver {
-		fmt.Println("matlas", version)
+		fullVersion := fmt.Sprintf(`%v %v`, repo, version)
+		fmt.Println(fullVersion)
 		os.Exit(0)
 	} else if len(flag.Args()) == 0 {
 		fmt.Println("Usage: atlas [flags] uri")
